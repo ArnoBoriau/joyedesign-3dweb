@@ -1,0 +1,47 @@
+uniform float iTime;
+uniform vec2 iMouse;
+uniform vec2 iResolution;
+uniform sampler2D iChannel0;
+
+varying vec2 vUv;
+
+const vec2 vp = vec2(320.0, 200.0);
+
+//https://www.shadertoy.com/view/WsB3Wc
+
+vec2 rot(vec2 uv, float r) {
+    float sinX = sin (r);
+    float cosX = cos (r);
+    float sinY = sin (r);
+    mat2 rotationMatrix = mat2( cosX, -sinX, sinY, cosX);
+    return uv *rotationMatrix;
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    float s = 6.0;		//stripes
+    float st = 0.25;		//stripe thickness
+
+    vec2 uv = rot(fragCoord/iResolution.xy, 0.0+sin(iTime)*0.000005);
+
+    float osc = sin(uv.x*(uv.x+.5)*15.)*0.2;
+    uv.y += osc * sin(iTime+uv.x*2.);
+    uv.y = fract(uv.y*s);
+    
+    vec3 bg = vec3(.8,.2,.3);
+    vec3 fg = vec3(.05,.05,.1);
+    
+    float mask = smoothstep(0.5, 0.55, uv.y);
+    mask += smoothstep(0.5+st,0.55+st, 1.-uv.y);
+    
+    vec3 col = mask*bg + (1.-mask)*fg;
+
+    // Output to screen
+    fragColor = vec4(col,1.0);
+}
+
+void main()
+{
+  vec2 fragCoord = iResolution * vUv;
+  mainImage(gl_FragColor, fragCoord);
+}
