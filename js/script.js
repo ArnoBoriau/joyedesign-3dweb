@@ -1,5 +1,6 @@
 // https://www.shadertoy.com/view/XsVSDz
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import mainBufferShader from "./shaders/main/buffer.glsl?raw";
@@ -45,14 +46,34 @@ const init = () => {
   // end shader renderer
 
   camera = new THREE.PerspectiveCamera(
-    60,
+    50,
     window.innerWidth / window.innerHeight,
     0.5,
     100
   );
-  camera.position.set(0, 0, 10);
+  camera.position.set(0, 0, 12.5);
 
   scene = new THREE.Scene();
+
+  // Blender loader
+  const loader = new GLTFLoader();
+  loader.load(
+    // resource URL
+    "assets/logo_joyedesign.glb",
+    // called when the resource is loaded
+    (gltf) => {
+      gltf.scene.traverse((child) => {
+        if (child.name === "J-letter" || child.name === "D-letter") {
+          child.material = rtMaterial;
+        } else {
+          child.material = material;
+        }
+      });
+      gltf.scene.position.z = 2;
+      gltf.scene.rotation.x = Math.PI / 2;
+      scene.add(gltf.scene);
+    }
+  );
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
