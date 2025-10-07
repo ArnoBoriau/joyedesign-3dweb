@@ -3,11 +3,14 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import mainFragmentShader from "./shaders/main/fragment.glsl?raw";
-import mainVertexShader from "./shaders/main/vertex.glsl?raw";
-
 import lettersFragmentShader from "./shaders/letters-shader/fragment.glsl?raw";
 import lettersVertexShader from "./shaders/letters-shader/vertex.glsl?raw";
+
+import backgroundFragmentShader from "./shaders/background/fragment.glsl?raw";
+import backgroundVertexShader from "./shaders/background/vertex.glsl?raw";
+
+import mainFragmentShader from "./shaders/main/fragment.glsl?raw";
+import mainVertexShader from "./shaders/main/vertex.glsl?raw";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -47,8 +50,8 @@ const init = () => {
       },
       iMouse: { value: new THREE.Vector2(0, 0) },
     },
-    vertexShader: mainVertexShader,
-    fragmentShader: mainFragmentShader,
+    vertexShader: backgroundVertexShader,
+    fragmentShader: backgroundFragmentShader,
     side: THREE.BackSide, // Render the inside faces of the sphere
   });
 
