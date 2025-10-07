@@ -27,12 +27,23 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float st = 0.25;		                //stripe thickness
     float repetition = 4.0;             // Add repetition factor
 
-    vec2 uv = rot(fragCoord/iResolution.xy * repetition, 0.0+sin(iTime)*0.000005);
-
+    vec2 uv = fragCoord/iResolution.xy * repetition;
     
-    float osc = sin(uv.x*(uv.x+.5)*(5.*mouseNormalizeX))*0.1;
-    uv.y += osc * sin(iTime+uv.x*2.);
-    uv.y = fract(uv.y*s);
+    // Instead of rotating the UV, rotate the pattern using sin/cos for seamless wrapping
+    float angle = 0.0 + sin(iTime) * 0.000005;
+    float cosA = cos(angle);
+    float sinA = sin(angle);
+    
+    // Use multiple offset sine waves to break up regular patterns
+    float x = uv.x * 6.28318530718; // Convert to radians for full 2*PI wrap
+    float seamlessX = sin(x) * cosA + cos(x) * sinA; // Rotated seamless coordinate
+    
+    // Combine multiple frequencies to avoid apparent source points
+    float osc1 = sin(seamlessX * 3.0 * mouseNormalizeX) * 0.03;
+    float osc2 = sin(seamlessX * 7.0 * mouseNormalizeX + 1.5) * 0.02;
+    float osc = osc1 + osc2;
+    uv.y += osc * sin(iTime + seamlessX * 2.0);
+    uv.y = fract(uv.y * s);
     
     vec3 bg = vec3(.9,.8,.2);
     vec3 fg = vec3(.05,.05,.1);
