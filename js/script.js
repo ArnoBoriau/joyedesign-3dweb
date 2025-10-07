@@ -3,11 +3,9 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
-import mainBufferShader from "./shaders/main/buffer.glsl?raw";
 import mainFragmentShader from "./shaders/main/fragment.glsl?raw";
 import mainVertexShader from "./shaders/main/vertex.glsl?raw";
 
-import lettersBufferShader from "./shaders/letters-shader/buffer.glsl?raw";
 import lettersFragmentShader from "./shaders/letters-shader/fragment.glsl?raw";
 import lettersVertexShader from "./shaders/letters-shader/vertex.glsl?raw";
 
@@ -15,7 +13,6 @@ const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
 let clock = new THREE.Clock();
 let plane, material;
-let renderTarget, rtScene, rtCamera, rtMaterial;
 let lettersMaterial;
 const mouse = new THREE.Vector2();
 
@@ -26,29 +23,6 @@ const init = () => {
     canvas: $canvas,
     antialias: true,
   });
-
-  // shader renderer
-  const effectPlaneGeometry = new THREE.PlaneGeometry(2, 2);
-  rtMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      iTime: { value: 0 },
-      iMouse: { value: new THREE.Vector4(0, 0, 0, 0) },
-      iResolution: {
-        value: new THREE.Vector2(512, 512),
-      },
-    },
-    vertexShader: mainVertexShader,
-    fragmentShader: mainBufferShader,
-  });
-  const effectPlane = new THREE.Mesh(effectPlaneGeometry, rtMaterial);
-  rtCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  rtScene = new THREE.Scene();
-  rtScene.add(effectPlane);
-  renderTarget = new THREE.WebGLRenderTarget(1024, 1024, {
-    minFilter: THREE.LinearFilter,
-    magFilter: THREE.LinearFilter,
-  });
-  // end shader renderer
 
   // letters shader material
   lettersMaterial = new THREE.ShaderMaterial({
@@ -61,6 +35,19 @@ const init = () => {
     },
     vertexShader: lettersVertexShader,
     fragmentShader: lettersFragmentShader,
+  });
+
+  // background plane shader material
+  material = new THREE.ShaderMaterial({
+    uniforms: {
+      iTime: { value: 0 },
+      iResolution: {
+        value: new THREE.Vector2(512, 512),
+      },
+      iMouse: { value: new THREE.Vector2(0, 0) },
+    },
+    vertexShader: mainVertexShader,
+    fragmentShader: mainFragmentShader,
   });
 
   camera = new THREE.PerspectiveCamera(
@@ -93,25 +80,14 @@ const init = () => {
     }
   );
 
+  // create background plane
+  const geometry = new THREE.PlaneGeometry(25, 25);
+  plane = new THREE.Mesh(geometry, material);
+  scene.add(plane);
+
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
-
-  const geometry = new THREE.PlaneGeometry(25, 25);
-  material = new THREE.ShaderMaterial({
-    uniforms: {
-      iTime: { value: 0 },
-      iResolution: {
-        value: new THREE.Vector2(512, 512),
-      },
-      iMouse: { value: new THREE.Vector2(0, 0) },
-      iChannel0: { value: renderTarget.texture },
-    },
-    vertexShader: mainVertexShader,
-    fragmentShader: mainFragmentShader,
-  });
-  plane = new THREE.Mesh(geometry, material);
-  scene.add(plane);
 
   window.addEventListener("resize", resize);
   resize();
@@ -127,11 +103,6 @@ const init = () => {
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  // Update main shader uniforms
-  rtMaterial.uniforms.iTime.value = elapsedTime;
-  rtMaterial.uniforms.iMouse.value.x = mouse.x;
-  rtMaterial.uniforms.iMouse.value.y = mouse.y;
-
   // Update letters shader uniforms
   lettersMaterial.uniforms.iTime.value = elapsedTime;
   lettersMaterial.uniforms.iMouse.value.x = mouse.x;
@@ -141,11 +112,6 @@ const draw = () => {
   material.uniforms.iTime.value = elapsedTime * 2;
   material.uniforms.iMouse.value.x = mouse.x;
   material.uniforms.iMouse.value.y = mouse.y;
-
-  // Render main shader to render target
-  renderer.setRenderTarget(renderTarget);
-  renderer.render(rtScene, rtCamera);
-  renderer.setRenderTarget(null);
 
   controls.update();
   renderer.render(scene, camera);
