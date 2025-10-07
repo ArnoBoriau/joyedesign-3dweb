@@ -1,8 +1,9 @@
-// https://www.shadertoy.com/view/XsVSDz
 import * as THREE from "three";
+
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { createShaderMaterials } from "./materials.js";
+
+import { createShaderMaterials } from "./utils/materials.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -20,6 +21,14 @@ const shaderSetup = () => {
   lettersMaterial = materials.lettersMaterial;
   backgroundMaterial = materials.backgroundMaterial;
   mainMaterial = materials.mainMaterial;
+};
+
+const controlsSetup = () => {
+  controls = new OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.05;
+  controls.minDistance = 5;
+  controls.maxDistance = 45; // sphere radius 50
 };
 
 const init = () => {
@@ -69,11 +78,7 @@ const init = () => {
   background = new THREE.Mesh(geometry, backgroundMaterial);
   scene.add(background);
 
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.minDistance = 5;
-  controls.maxDistance = 45; // sphere radius 50
+  controlsSetup();
 
   window.addEventListener("resize", resize);
   resize();
@@ -86,7 +91,7 @@ const init = () => {
   requestAnimationFrame(draw);
 };
 
-const materialUniformsUpdate = () => {
+const materialUniformsUpdate = (elapsedTime) => {
   // Update letters material uniforms
   lettersMaterial.uniforms.iTime.value = elapsedTime;
   lettersMaterial.uniforms.iMouse.value.x = mouse.x;
@@ -106,7 +111,7 @@ const materialUniformsUpdate = () => {
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  materialUniformsUpdate();
+  materialUniformsUpdate(elapsedTime);
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(draw);
