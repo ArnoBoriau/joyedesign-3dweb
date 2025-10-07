@@ -2,15 +2,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-
-import lettersFragmentShader from "./shaders/letters-shader/fragment.glsl?raw";
-import lettersVertexShader from "./shaders/letters-shader/vertex.glsl?raw";
-
-import backgroundFragmentShader from "./shaders/background/fragment.glsl?raw";
-import backgroundVertexShader from "./shaders/background/vertex.glsl?raw";
-
-import mainFragmentShader from "./shaders/main/fragment.glsl?raw";
-import mainVertexShader from "./shaders/main/vertex.glsl?raw";
+import { createShaderMaterials } from "./materials.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -18,7 +10,17 @@ let clock = new THREE.Clock();
 let background, backgroundMaterial;
 let lettersMaterial;
 let mainMaterial;
+let testMaterial;
 const mouse = new THREE.Vector2();
+
+const shaderSetup = () => {
+  const materials = createShaderMaterials();
+
+  testMaterial = materials.testMaterial;
+  lettersMaterial = materials.lettersMaterial;
+  backgroundMaterial = materials.backgroundMaterial;
+  mainMaterial = materials.mainMaterial;
+};
 
 const init = () => {
   console.log("init");
@@ -28,45 +30,7 @@ const init = () => {
     antialias: true,
   });
 
-  // letters shader material
-  lettersMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      iTime: { value: 0 },
-      iMouse: { value: new THREE.Vector2(0, 0) },
-      iResolution: {
-        value: new THREE.Vector2(512, 512),
-      },
-    },
-    vertexShader: lettersVertexShader,
-    fragmentShader: lettersFragmentShader,
-  });
-
-  // background plane shader material
-  backgroundMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      iTime: { value: 0 },
-      iResolution: {
-        value: new THREE.Vector2(512, 512),
-      },
-      iMouse: { value: new THREE.Vector2(0, 0) },
-    },
-    vertexShader: backgroundVertexShader,
-    fragmentShader: backgroundFragmentShader,
-    side: THREE.BackSide, // Render the inside faces of the sphere
-  });
-
-  // main shader material
-  mainMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      iTime: { value: 0 },
-      iResolution: {
-        value: new THREE.Vector2(512, 512),
-      },
-      iMouse: { value: new THREE.Vector2(0, 0) },
-    },
-    vertexShader: mainVertexShader,
-    fragmentShader: mainFragmentShader,
-  });
+  shaderSetup();
 
   camera = new THREE.PerspectiveCamera(
     50,
@@ -88,8 +52,10 @@ const init = () => {
       gltf.scene.traverse((child) => {
         if (child.name === "J-letter" || child.name === "D-letter") {
           child.material = lettersMaterial;
+          // child.material = testMaterial;
         } else {
           child.material = mainMaterial;
+          // child.material = testMaterial;
         }
       });
       // gltf.scene.position.z = 2;
@@ -120,10 +86,8 @@ const init = () => {
   requestAnimationFrame(draw);
 };
 
-const draw = () => {
-  const elapsedTime = clock.getElapsedTime();
-
-  // Update letters shader uniforms
+const materialUniformsUpdate = () => {
+  // Update letters material uniforms
   lettersMaterial.uniforms.iTime.value = elapsedTime;
   lettersMaterial.uniforms.iMouse.value.x = mouse.x;
   lettersMaterial.uniforms.iMouse.value.y = mouse.y;
@@ -137,7 +101,12 @@ const draw = () => {
   mainMaterial.uniforms.iTime.value = elapsedTime * 2;
   mainMaterial.uniforms.iMouse.value.x = mouse.x;
   mainMaterial.uniforms.iMouse.value.y = mouse.y;
+};
 
+const draw = () => {
+  const elapsedTime = clock.getElapsedTime();
+
+  materialUniformsUpdate();
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(draw);
