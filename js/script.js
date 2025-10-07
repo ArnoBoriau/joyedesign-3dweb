@@ -103,6 +103,8 @@ const init = () => {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.05;
+  controls.minDistance = 5;
+  controls.maxDistance = 45; // sphere radius 50
 
   window.addEventListener("resize", resize);
   resize();
