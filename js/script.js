@@ -7,11 +7,16 @@ import mainBufferShader from "./shaders/main/buffer.glsl?raw";
 import mainFragmentShader from "./shaders/main/fragment.glsl?raw";
 import mainVertexShader from "./shaders/main/vertex.glsl?raw";
 
+import lettersBufferShader from "./shaders/letters-shader/buffer.glsl?raw";
+import lettersFragmentShader from "./shaders/letters-shader/fragment.glsl?raw";
+import lettersVertexShader from "./shaders/letters-shader/vertex.glsl?raw";
+
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
 let clock = new THREE.Clock();
 let plane, material;
 let renderTarget, rtScene, rtCamera, rtMaterial;
+let lettersMaterial;
 const mouse = new THREE.Vector2();
 
 const init = () => {
@@ -45,6 +50,19 @@ const init = () => {
   });
   // end shader renderer
 
+  // letters shader material
+  lettersMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      iTime: { value: 0 },
+      iMouse: { value: new THREE.Vector2(0, 0) },
+      iResolution: {
+        value: new THREE.Vector2(512, 512),
+      },
+    },
+    vertexShader: lettersVertexShader,
+    fragmentShader: lettersFragmentShader,
+  });
+
   camera = new THREE.PerspectiveCamera(
     50,
     window.innerWidth / window.innerHeight,
@@ -64,7 +82,7 @@ const init = () => {
     (gltf) => {
       gltf.scene.traverse((child) => {
         if (child.name === "J-letter" || child.name === "D-letter") {
-          child.material = rtMaterial;
+          child.material = lettersMaterial;
         } else {
           child.material = material;
         }
@@ -109,13 +127,22 @@ const init = () => {
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
+  // Update main shader uniforms
   rtMaterial.uniforms.iTime.value = elapsedTime;
   rtMaterial.uniforms.iMouse.value.x = mouse.x;
   rtMaterial.uniforms.iMouse.value.y = mouse.y;
+
+  // Update letters shader uniforms
+  lettersMaterial.uniforms.iTime.value = elapsedTime;
+  lettersMaterial.uniforms.iMouse.value.x = mouse.x;
+  lettersMaterial.uniforms.iMouse.value.y = mouse.y;
+
+  // Update background material uniforms
   material.uniforms.iTime.value = elapsedTime * 2;
   material.uniforms.iMouse.value.x = mouse.x;
   material.uniforms.iMouse.value.y = mouse.y;
 
+  // Render main shader to render target
   renderer.setRenderTarget(renderTarget);
   renderer.render(rtScene, rtCamera);
   renderer.setRenderTarget(null);
