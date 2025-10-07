@@ -12,8 +12,9 @@ import lettersVertexShader from "./shaders/letters-shader/vertex.glsl?raw";
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
 let clock = new THREE.Clock();
-let plane, material;
+let background, backgroundMaterial;
 let lettersMaterial;
+let mainMaterial;
 const mouse = new THREE.Vector2();
 
 const init = () => {
@@ -38,7 +39,21 @@ const init = () => {
   });
 
   // background plane shader material
-  material = new THREE.ShaderMaterial({
+  backgroundMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      iTime: { value: 0 },
+      iResolution: {
+        value: new THREE.Vector2(512, 512),
+      },
+      iMouse: { value: new THREE.Vector2(0, 0) },
+    },
+    vertexShader: mainVertexShader,
+    fragmentShader: mainFragmentShader,
+    side: THREE.BackSide, // Render the inside faces of the sphere
+  });
+
+  // main shader material
+  mainMaterial = new THREE.ShaderMaterial({
     uniforms: {
       iTime: { value: 0 },
       iResolution: {
@@ -71,19 +86,19 @@ const init = () => {
         if (child.name === "J-letter" || child.name === "D-letter") {
           child.material = lettersMaterial;
         } else {
-          child.material = material;
+          child.material = mainMaterial;
         }
       });
-      gltf.scene.position.z = 2;
+      // gltf.scene.position.z = 2;
       gltf.scene.rotation.x = Math.PI / 2;
       scene.add(gltf.scene);
     }
   );
 
-  // create background plane
-  const geometry = new THREE.PlaneGeometry(25, 25);
-  plane = new THREE.Mesh(geometry, material);
-  scene.add(plane);
+  // create background sphere (we're inside it)
+  const geometry = new THREE.SphereGeometry(50, 32, 32);
+  background = new THREE.Mesh(geometry, backgroundMaterial);
+  scene.add(background);
 
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -109,9 +124,14 @@ const draw = () => {
   lettersMaterial.uniforms.iMouse.value.y = mouse.y;
 
   // Update background material uniforms
-  material.uniforms.iTime.value = elapsedTime * 2;
-  material.uniforms.iMouse.value.x = mouse.x;
-  material.uniforms.iMouse.value.y = mouse.y;
+  backgroundMaterial.uniforms.iTime.value = elapsedTime * 2;
+  backgroundMaterial.uniforms.iMouse.value.x = mouse.x;
+  backgroundMaterial.uniforms.iMouse.value.y = mouse.y;
+
+  // Update main material uniforms
+  mainMaterial.uniforms.iTime.value = elapsedTime * 2;
+  mainMaterial.uniforms.iMouse.value.x = mouse.x;
+  mainMaterial.uniforms.iMouse.value.y = mouse.y;
 
   controls.update();
   renderer.render(scene, camera);
