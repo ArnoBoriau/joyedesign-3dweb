@@ -23,6 +23,19 @@ const shaderSetup = () => {
   mainMaterial = materials.mainMaterial;
 };
 
+const lightingSetup = (scene) => {
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // Soft light
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xfff8f0, 1); // Neutral warm (~5000K)
+  directionalLight.position.set(10, 10, 5);
+  scene.add(directionalLight);
+
+  const pointLight = new THREE.PointLight(0xffedd9, 0.8, 100); // Subtle warm fill (~4000K)
+  pointLight.position.set(-10, -10, 10);
+  scene.add(pointLight);
+};
+
 const controlsSetup = () => {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
@@ -78,6 +91,8 @@ const init = () => {
   background = new THREE.Mesh(geometry, backgroundMaterial);
   scene.add(background);
 
+  lightingSetup(scene);
+
   controlsSetup();
 
   window.addEventListener("resize", resize);
@@ -92,22 +107,18 @@ const init = () => {
 };
 
 const materialUniformsUpdate = (elapsedTime) => {
-  // Update letters material uniforms
-  lettersMaterial.uniforms.iTime.value = elapsedTime;
-  lettersMaterial.uniforms.iMouse.value.x = mouse.x;
-  lettersMaterial.uniforms.iMouse.value.y = mouse.y;
-
-  // Update background material uniforms
-  backgroundMaterial.uniforms.iTime.value = elapsedTime * 2;
+  // Update background material uniforms (ShaderMaterial)
+  backgroundMaterial.uniforms.iTime.value = elapsedTime;
   backgroundMaterial.uniforms.iMouse.value.x = mouse.x;
   backgroundMaterial.uniforms.iMouse.value.y = mouse.y;
+  backgroundMaterial.uniforms.lightInfluence.value = 0.5;
+  backgroundMaterial.uniforms.ambientLightIntensity.value = 0.3;
 
-  // Update main material uniforms
-  mainMaterial.uniforms.iTime.value = elapsedTime * 2;
-  mainMaterial.uniforms.iMouse.value.x = mouse.x;
-  mainMaterial.uniforms.iMouse.value.y = mouse.y;
+  // Update test material uniforms (ShaderMaterial)
+  testMaterial.uniforms.iTime.value = elapsedTime;
+  testMaterial.uniforms.iMouse.value.x = mouse.x;
+  testMaterial.uniforms.iMouse.value.y = mouse.y;
 };
-
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
