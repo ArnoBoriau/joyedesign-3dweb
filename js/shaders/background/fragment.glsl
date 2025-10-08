@@ -51,7 +51,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     uv.y += osc * sin(iTime + seamlessX * 2.0);
     uv.y = fract(uv.y * s);
     
-    vec3 bg = vec3(.9,.8,.2);
+    // vec3 bg = vec3(.9,.8,.2);
+    vec3 bg = vec3(.95,.75,.15);
     vec3 fg = vec3(.05,.05,.1);
     
     // Subtle anti-aliasing - just enough to smooth edges

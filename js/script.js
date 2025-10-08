@@ -12,6 +12,7 @@ let background, backgroundMaterial;
 let lettersMaterial;
 let mainMaterial;
 let testMaterial;
+let logoGroup;
 const mouse = new THREE.Vector2();
 
 const shaderSetup = () => {
@@ -60,7 +61,8 @@ const init = () => {
     0.5,
     100
   );
-  camera.position.set(0, 0, 12.5);
+  // camera.position.set(0, 0, 12.5);
+  camera.position.set(0, 0, 15);
 
   scene = new THREE.Scene();
 
@@ -80,9 +82,9 @@ const init = () => {
           // child.material = testMaterial;
         }
       });
-      // gltf.scene.position.z = 2;
-      gltf.scene.rotation.x = Math.PI / 2;
-      scene.add(gltf.scene);
+      logoGroup = gltf.scene;
+      logoGroup.rotation.x = Math.PI / 2;
+      scene.add(logoGroup);
     }
   );
 
@@ -106,6 +108,17 @@ const init = () => {
   requestAnimationFrame(draw);
 };
 
+const logoAnimations = (elapsedTime) => {
+  if (!logoGroup) return;
+
+  const floatAmplitude = 0.1;
+  const floatSpeed = 1.15;
+  logoGroup.position.y = Math.sin(elapsedTime * floatSpeed) * floatAmplitude;
+
+  const rotationSpeed = 0.5;
+  logoGroup.rotation.z = Math.sin(elapsedTime * rotationSpeed) * 0.05;
+};
+
 const materialUniformsUpdate = (elapsedTime) => {
   // Update background material uniforms (ShaderMaterial)
   backgroundMaterial.uniforms.iTime.value = elapsedTime;
@@ -122,7 +135,9 @@ const materialUniformsUpdate = (elapsedTime) => {
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
+  logoAnimations(elapsedTime);
   materialUniformsUpdate(elapsedTime);
+
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(draw);
