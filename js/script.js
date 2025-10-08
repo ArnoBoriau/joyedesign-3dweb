@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { gsap } from "gsap";
 
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -62,8 +63,8 @@ const init = () => {
     0.5,
     100
   );
-  // camera.position.set(0, 0, 12.5);
-  camera.position.set(0, 0, 15);
+
+  camera.position.set(0, 0, 35);
 
   scene = new THREE.Scene();
 
@@ -97,7 +98,26 @@ const init = () => {
       logoGroup.add(lettersGroup);
       logoGroup.add(logoBackgroundGroup);
       logoGroup.rotation.x = Math.PI / 2;
+
+      logoGroup.scale.set(0, 0, 0);
+
       scene.add(logoGroup);
+
+      gsap.to(logoGroup.scale, {
+        x: 1,
+        y: 1,
+        z: 1,
+        duration: 0.75,
+        ease: "back.out(1.75)",
+        delay: 0.2,
+      });
+
+      gsap.to(camera.position, {
+        z: 15,
+        duration: 0.75,
+        ease: "power3.out",
+        delay: 0.2,
+      });
     }
   );
 
@@ -135,7 +155,7 @@ const floatingAnimation = (elapsedTime) => {
   logoGroup.rotation.z = Math.sin(elapsedTime * rotationSpeed) * 0.05;
 };
 
-const lettersMouseFollow = () => {
+const lettersMouseFollow = (elapsedTime) => {
   if (!lettersGroup) return;
 
   const mouseRotationInfluence = 0.15;
@@ -161,7 +181,7 @@ const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
   floatingAnimation(elapsedTime);
-  lettersMouseFollow();
+  lettersMouseFollow(elapsedTime);
   materialUniformsUpdate(elapsedTime);
 
   controls.update();
