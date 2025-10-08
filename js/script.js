@@ -135,7 +135,7 @@ const floatingAnimation = (elapsedTime) => {
   logoGroup.rotation.z = Math.sin(elapsedTime * rotationSpeed) * 0.05;
 };
 
-const lettersMouseFollow = (elapsedTime) => {
+const lettersMouseFollow = () => {
   if (!lettersGroup) return;
 
   const mouseRotationInfluence = 0.15;
