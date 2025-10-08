@@ -161,7 +161,7 @@ const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
   floatingAnimation(elapsedTime);
-  lettersMouseFollow(elapsedTime);
+  lettersMouseFollow();
   materialUniformsUpdate(elapsedTime);
 
   controls.update();
