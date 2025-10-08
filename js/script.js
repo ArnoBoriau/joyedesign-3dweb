@@ -12,7 +12,7 @@ let background, backgroundMaterial;
 let lettersMaterial;
 let mainMaterial;
 let testMaterial;
-let logoGroup;
+let logoGroup, lettersGroup, logoBackgroundGroup;
 const mouse = new THREE.Vector2();
 
 const shaderSetup = () => {
@@ -73,16 +73,28 @@ const init = () => {
     "assets/logo_joyedesign.glb",
     // called when the resource is loaded
     (gltf) => {
+      logoGroup = new THREE.Group();
+      lettersGroup = new THREE.Group();
+      logoBackgroundGroup = new THREE.Group();
+
+      const lettersObjects = [];
+      const backgroundObjects = [];
+
       gltf.scene.traverse((child) => {
-        if (child.name === "J-letter" || child.name === "D-letter") {
-          child.material = lettersMaterial;
-          // child.material = testMaterial;
-        } else {
-          child.material = mainMaterial;
-          // child.material = testMaterial;
+        if (child.isMesh) {
+          if (child.name === "J-letter" || child.name === "D-letter") {
+            child.material = lettersMaterial;
+            lettersObjects.push(child);
+          } else {
+            child.material = mainMaterial;
+            backgroundObjects.push(child);
+          }
         }
       });
-      logoGroup = gltf.scene;
+      lettersObjects.forEach((obj) => lettersGroup.add(obj));
+      backgroundObjects.forEach((obj) => logoBackgroundGroup.add(obj));
+      logoGroup.add(lettersGroup);
+      logoGroup.add(logoBackgroundGroup);
       logoGroup.rotation.x = Math.PI / 2;
       scene.add(logoGroup);
     }
