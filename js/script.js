@@ -14,6 +14,7 @@ let mainMaterial;
 let testMaterial;
 let logoGroup, lettersGroup, logoBackgroundGroup;
 const mouse = new THREE.Vector2();
+const mouseShader = new THREE.Vector2();
 
 const shaderSetup = () => {
   const materials = createShaderMaterials();
@@ -113,14 +114,17 @@ const init = () => {
   resize();
 
   window.addEventListener("mousemove", (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+    mouseShader.x = e.clientX;
+    mouseShader.y = e.clientY;
+
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
   });
 
   requestAnimationFrame(draw);
 };
 
-const logoAnimations = (elapsedTime) => {
+const floatingAnimation = (elapsedTime) => {
   if (!logoGroup) return;
 
   const floatAmplitude = 0.1;
@@ -131,23 +135,33 @@ const logoAnimations = (elapsedTime) => {
   logoGroup.rotation.z = Math.sin(elapsedTime * rotationSpeed) * 0.05;
 };
 
+const lettersMouseFollow = (elapsedTime) => {
+  if (!lettersGroup) return;
+
+  const mouseRotationInfluence = 0.15;
+
+  lettersGroup.rotation.z = -mouse.x * mouseRotationInfluence;
+  lettersGroup.rotation.x = -mouse.y * mouseRotationInfluence * 0.7;
+};
+
 const materialUniformsUpdate = (elapsedTime) => {
   // Update background material uniforms (ShaderMaterial)
   backgroundMaterial.uniforms.iTime.value = elapsedTime;
-  backgroundMaterial.uniforms.iMouse.value.x = mouse.x;
-  backgroundMaterial.uniforms.iMouse.value.y = mouse.y;
+  backgroundMaterial.uniforms.iMouse.value.x = mouseShader.x;
+  backgroundMaterial.uniforms.iMouse.value.y = mouseShader.y;
   backgroundMaterial.uniforms.lightInfluence.value = 0.5;
   backgroundMaterial.uniforms.ambientLightIntensity.value = 0.3;
 
   // Update test material uniforms (ShaderMaterial)
   testMaterial.uniforms.iTime.value = elapsedTime;
-  testMaterial.uniforms.iMouse.value.x = mouse.x;
-  testMaterial.uniforms.iMouse.value.y = mouse.y;
+  testMaterial.uniforms.iMouse.value.x = mouseShader.x;
+  testMaterial.uniforms.iMouse.value.y = mouseShader.y;
 };
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  logoAnimations(elapsedTime);
+  floatingAnimation(elapsedTime);
+  lettersMouseFollow(elapsedTime);
   materialUniformsUpdate(elapsedTime);
 
   controls.update();
