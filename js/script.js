@@ -1,11 +1,9 @@
 import * as THREE from "three";
-import { gsap } from "gsap";
-
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
 import { loadLogo } from "./utils/gltfLoader.js";
+import { floatingAnimation, lettersMouseFollow } from "./utils/animations.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -102,26 +100,6 @@ const init = () => {
   requestAnimationFrame(draw);
 };
 
-const floatingAnimation = (elapsedTime) => {
-  if (!logoGroup) return;
-
-  const floatAmplitude = 0.1;
-  const floatSpeed = 1.15;
-  logoGroup.position.y = Math.sin(elapsedTime * floatSpeed) * floatAmplitude;
-
-  const rotationSpeed = 0.5;
-  logoGroup.rotation.z = Math.sin(elapsedTime * rotationSpeed) * 0.05;
-};
-
-const lettersMouseFollow = (elapsedTime) => {
-  if (!lettersGroup) return;
-
-  const mouseRotationInfluence = 0.15;
-
-  lettersGroup.rotation.z = -mouse.x * mouseRotationInfluence;
-  lettersGroup.rotation.x = -mouse.y * mouseRotationInfluence * 0.7;
-};
-
 const materialUniformsUpdate = (elapsedTime) => {
   // Update background material uniforms (ShaderMaterial)
   backgroundMaterial.uniforms.iTime.value = elapsedTime;
@@ -135,11 +113,12 @@ const materialUniformsUpdate = (elapsedTime) => {
   testMaterial.uniforms.iMouse.value.x = mouseShader.x;
   testMaterial.uniforms.iMouse.value.y = mouseShader.y;
 };
+
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  floatingAnimation(elapsedTime);
-  lettersMouseFollow(elapsedTime);
+  floatingAnimation(elapsedTime, logoGroup);
+  lettersMouseFollow(lettersGroup, mouse);
   materialUniformsUpdate(elapsedTime);
 
   controls.update();
