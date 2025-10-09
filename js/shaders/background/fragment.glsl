@@ -27,9 +27,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
     // Normalize mouse Value
     float mouseNormalizeX = 0.10 + (iMouse.x / iResolution.x) * 0.750;
-    float mouseNormalizeY = 1.0 + (iMouse.y / iResolution.x) * 2.5;
+    float mouseNormalizeY = 1.5 + (iMouse.y / iResolution.x);
 
-    float s = (2.0*mouseNormalizeY);		//stripes
+    float s = (1.5*mouseNormalizeY);		//stripes
     float st = 0.25;		                //stripe thickness
     float repetition = 4.0;             // Add repetition factor
 
