@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
+import { loadLogo } from "./utils/gltfLoader.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -68,58 +69,11 @@ const init = () => {
 
   scene = new THREE.Scene();
 
-  // Blender loader
-  const loader = new GLTFLoader();
-  loader.load(
-    // resource URL
-    "assets/logo_joyedesign.glb",
-    // called when the resource is loaded
-    (gltf) => {
-      logoGroup = new THREE.Group();
-      lettersGroup = new THREE.Group();
-      logoBackgroundGroup = new THREE.Group();
-
-      const lettersObjects = [];
-      const backgroundObjects = [];
-
-      gltf.scene.traverse((child) => {
-        if (child.isMesh) {
-          if (child.name === "J-letter" || child.name === "D-letter") {
-            child.material = lettersMaterial;
-            lettersObjects.push(child);
-          } else {
-            child.material = mainMaterial;
-            backgroundObjects.push(child);
-          }
-        }
-      });
-      lettersObjects.forEach((obj) => lettersGroup.add(obj));
-      backgroundObjects.forEach((obj) => logoBackgroundGroup.add(obj));
-      logoGroup.add(lettersGroup);
-      logoGroup.add(logoBackgroundGroup);
-      logoGroup.rotation.x = Math.PI / 2;
-
-      logoGroup.scale.set(0, 0, 0);
-
-      scene.add(logoGroup);
-
-      gsap.to(logoGroup.scale, {
-        x: 1,
-        y: 1,
-        z: 1,
-        duration: 0.75,
-        ease: "back.out(1.75)",
-        delay: 0.2,
-      });
-
-      gsap.to(camera.position, {
-        z: 15,
-        duration: 0.75,
-        ease: "power3.out",
-        delay: 0.2,
-      });
-    }
-  );
+  loadLogo(scene, camera, lettersMaterial, mainMaterial).then((groups) => {
+    logoGroup = groups.logoGroup;
+    lettersGroup = groups.lettersGroup;
+    logoBackgroundGroup = groups.logoBackgroundGroup;
+  });
 
   // create background sphere (we're inside it)
   const geometry = new THREE.SphereGeometry(50, 32, 32);
