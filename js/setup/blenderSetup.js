@@ -1,8 +1,9 @@
+
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { gsap } from "gsap";
 
-export const loadLogo = (scene, camera, lettersMaterial, mainMaterial) => {
+export const blenderLoader = (scene, camera, lettersMaterial, mainMaterial) => {
   return new Promise((resolve) => {
     const loader = new GLTFLoader();
 

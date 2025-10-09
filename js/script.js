@@ -1,10 +1,13 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+
+import { lightingSetup } from "./setup/lightingSetup.js";
+import { controlsSetup } from "./setup/controlsSetup.js";
+import { audioSetup } from "./setup/audioSetup.js";
+import { blenderLoader } from "./setup/blenderSetup.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
-import { loadLogo } from "./utils/gltfLoader.js";
 import { floatingAnimation, lettersMouseFollow } from "./utils/animations.js";
-import { audioSetup } from "./utils/audioControl.js";
+import { materialUniformsUpdate } from "./utils/materialUpdates.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -26,27 +29,6 @@ const shaderSetup = () => {
   mainMaterial = materials.mainMaterial;
 };
 
-const lightingSetup = (scene) => {
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.4); // Soft light
-  scene.add(ambientLight);
-
-  const directionalLight = new THREE.DirectionalLight(0xfff8f0, 1); // Neutral warm (~5000K)
-  directionalLight.position.set(10, 10, 5);
-  scene.add(directionalLight);
-
-  const pointLight = new THREE.PointLight(0xffedd9, 0.8, 100); // Subtle warm fill (~4000K)
-  pointLight.position.set(-10, -10, 10);
-  scene.add(pointLight);
-};
-
-const controlsSetup = () => {
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.minDistance = 5;
-  controls.maxDistance = 45; // sphere radius 50
-};
-
 const setup = () => {
   renderer = new THREE.WebGLRenderer({
     canvas: $canvas,
@@ -66,7 +48,7 @@ const setup = () => {
 
   scene = new THREE.Scene();
 
-  loadLogo(scene, camera, lettersMaterial, mainMaterial).then((groups) => {
+  blenderLoader(scene, camera, lettersMaterial, mainMaterial).then((groups) => {
     logoGroup = groups.logoGroup;
     lettersGroup = groups.lettersGroup;
     logoBackgroundGroup = groups.logoBackgroundGroup;
@@ -79,7 +61,7 @@ const setup = () => {
 
   lightingSetup(scene);
 
-  controlsSetup();
+  controls = controlsSetup(camera, renderer);
 
   audioSetup();
 };
@@ -103,26 +85,17 @@ const init = () => {
   requestAnimationFrame(draw);
 };
 
-const materialUniformsUpdate = (elapsedTime) => {
-  // Update background material uniforms (ShaderMaterial)
-  backgroundMaterial.uniforms.iTime.value = elapsedTime;
-  backgroundMaterial.uniforms.iMouse.value.x = mouseShader.x;
-  backgroundMaterial.uniforms.iMouse.value.y = mouseShader.y;
-  backgroundMaterial.uniforms.lightInfluence.value = 0.5;
-  backgroundMaterial.uniforms.ambientLightIntensity.value = 0.3;
-
-  // Update test material uniforms (ShaderMaterial)
-  testMaterial.uniforms.iTime.value = elapsedTime;
-  testMaterial.uniforms.iMouse.value.x = mouseShader.x;
-  testMaterial.uniforms.iMouse.value.y = mouseShader.y;
-};
-
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
   floatingAnimation(elapsedTime, logoGroup);
   lettersMouseFollow(lettersGroup, mouse);
-  materialUniformsUpdate(elapsedTime);
+  materialUniformsUpdate(
+    elapsedTime,
+    backgroundMaterial,
+    testMaterial,
+    mouseShader
+  );
 
   controls.update();
   renderer.render(scene, camera);
