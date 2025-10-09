@@ -1,9 +1,13 @@
 import * as THREE from "three";
 
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { lightingSetup } from "./setup/lightingSetup.js";
+import { controlsSetup } from "./setup/controlsSetup.js";
+import { audioSetup } from "./setup/audioSetup.js";
+import { blenderLoader } from "./setup/blenderSetup.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
+import { floatingAnimation, lettersMouseFollow } from "./utils/animations.js";
+import { materialUniformsUpdate } from "./utils/materialUpdates.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -12,7 +16,9 @@ let background, backgroundMaterial;
 let lettersMaterial;
 let mainMaterial;
 let testMaterial;
+let logoGroup, lettersGroup, logoBackgroundGroup;
 const mouse = new THREE.Vector2();
+const mouseShader = new THREE.Vector2();
 
 const shaderSetup = () => {
   const materials = createShaderMaterials();
@@ -23,17 +29,7 @@ const shaderSetup = () => {
   mainMaterial = materials.mainMaterial;
 };
 
-const controlsSetup = () => {
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.dampingFactor = 0.05;
-  controls.minDistance = 5;
-  controls.maxDistance = 45; // sphere radius 50
-};
-
-const init = () => {
-  console.log("init");
-
+const setup = () => {
   renderer = new THREE.WebGLRenderer({
     canvas: $canvas,
     antialias: true,
@@ -47,71 +43,60 @@ const init = () => {
     0.5,
     100
   );
-  camera.position.set(0, 0, 12.5);
+
+  camera.position.set(0, 0, 35);
 
   scene = new THREE.Scene();
 
-  // Blender loader
-  const loader = new GLTFLoader();
-  loader.load(
-    // resource URL
-    "assets/logo_joyedesign.glb",
-    // called when the resource is loaded
-    (gltf) => {
-      gltf.scene.traverse((child) => {
-        if (child.name === "J-letter" || child.name === "D-letter") {
-          child.material = lettersMaterial;
-          // child.material = testMaterial;
-        } else {
-          child.material = mainMaterial;
-          // child.material = testMaterial;
-        }
-      });
-      // gltf.scene.position.z = 2;
-      gltf.scene.rotation.x = Math.PI / 2;
-      scene.add(gltf.scene);
-    }
-  );
+  blenderLoader(scene, camera, lettersMaterial, mainMaterial).then((groups) => {
+    logoGroup = groups.logoGroup;
+    lettersGroup = groups.lettersGroup;
+    logoBackgroundGroup = groups.logoBackgroundGroup;
+  });
 
   // create background sphere (we're inside it)
   const geometry = new THREE.SphereGeometry(50, 32, 32);
   background = new THREE.Mesh(geometry, backgroundMaterial);
   scene.add(background);
 
-  controlsSetup();
+  lightingSetup(scene);
+
+  controls = controlsSetup(camera, renderer);
+
+  audioSetup();
+};
+
+const init = () => {
+  console.log("init");
+
+  setup();
 
   window.addEventListener("resize", resize);
   resize();
 
   window.addEventListener("mousemove", (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
+    mouseShader.x = e.clientX;
+    mouseShader.y = e.clientY;
+
+    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
   });
 
   requestAnimationFrame(draw);
 };
 
-const materialUniformsUpdate = (elapsedTime) => {
-  // Update letters material uniforms
-  lettersMaterial.uniforms.iTime.value = elapsedTime;
-  lettersMaterial.uniforms.iMouse.value.x = mouse.x;
-  lettersMaterial.uniforms.iMouse.value.y = mouse.y;
-
-  // Update background material uniforms
-  backgroundMaterial.uniforms.iTime.value = elapsedTime * 2;
-  backgroundMaterial.uniforms.iMouse.value.x = mouse.x;
-  backgroundMaterial.uniforms.iMouse.value.y = mouse.y;
-
-  // Update main material uniforms
-  mainMaterial.uniforms.iTime.value = elapsedTime * 2;
-  mainMaterial.uniforms.iMouse.value.x = mouse.x;
-  mainMaterial.uniforms.iMouse.value.y = mouse.y;
-};
-
 const draw = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  materialUniformsUpdate(elapsedTime);
+  floatingAnimation(elapsedTime, logoGroup);
+  lettersMouseFollow(lettersGroup, mouse);
+  materialUniformsUpdate(
+    elapsedTime,
+    backgroundMaterial,
+    testMaterial,
+    mouseShader
+  );
+
   controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(draw);
