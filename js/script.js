@@ -4,6 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { createShaderMaterials } from "./utils/materials.js";
 import { loadLogo } from "./utils/gltfLoader.js";
 import { floatingAnimation, lettersMouseFollow } from "./utils/animations.js";
+import { audioSetup } from "./utils/audioControl.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -44,55 +45,6 @@ const controlsSetup = () => {
   controls.dampingFactor = 0.05;
   controls.minDistance = 5;
   controls.maxDistance = 45; // sphere radius 50
-};
-
-const audioSetup = () => {
-  const audio = new Audio();
-  audio.src = "assets/ChariotsofFire_Soundtrack.mp3";
-  audio.loop = true;
-  audio.volume = 0.2;
-
-  let isPlaying = false;
-
-  const audioUI = document.createElement("div");
-  audioUI.style.cssText = `
-    position: absolute;
-    bottom: 1rem;
-    left: 50vw;
-    transform: translateX(-50%);
-    color: white;
-    font-family: Arial, sans-serif;
-    font-size: 1rem;
-    z-index: 10;
-  `;
-
-  const updateUI = () => {
-    audioUI.textContent = isPlaying
-      ? "Click to pause music"
-      : "Click to play music";
-  };
-
-  updateUI();
-
-  const toggleAudio = async () => {
-    try {
-      if (isPlaying) {
-        audio.pause();
-        isPlaying = false;
-      } else {
-        await audio.play();
-        isPlaying = true;
-      }
-      updateUI();
-    } catch (error) {
-      console.log("Audio toggle failed:", error);
-    }
-  };
-
-  document.addEventListener("click", toggleAudio);
-  document.body.appendChild(audioUI);
-
-  return { audio, toggle: toggleAudio };
 };
 
 const setup = () => {
