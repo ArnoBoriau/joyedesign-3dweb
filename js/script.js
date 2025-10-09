@@ -48,9 +48,7 @@ const controlsSetup = () => {
   controls.maxDistance = 45; // sphere radius 50
 };
 
-const init = () => {
-  console.log("init");
-
+const setup = () => {
   renderer = new THREE.WebGLRenderer({
     canvas: $canvas,
     antialias: true,
@@ -83,6 +81,12 @@ const init = () => {
   lightingSetup(scene);
 
   controlsSetup();
+};
+
+const init = () => {
+  console.log("init");
+
+  setup();
 
   window.addEventListener("resize", resize);
   resize();
