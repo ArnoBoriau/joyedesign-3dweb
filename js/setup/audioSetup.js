@@ -6,22 +6,35 @@ export const audioSetup = () => {
 
   let isPlaying = false;
 
-  const audioUI = document.createElement("div");
-  audioUI.style.cssText = `
+  const audioButton = document.createElement("button");
+  audioButton.style.cssText = `
     position: absolute;
     bottom: 1rem;
     left: 50vw;
     transform: translateX(-50%);
     color: white;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 5px;
+    padding: 8px 16px;
     font-family: Arial, sans-serif;
     font-size: 1rem;
+    cursor: pointer;
     z-index: 10;
+    transition: background-color 0.3s ease;
   `;
 
+  // hover effect
+  audioButton.addEventListener("mouseenter", () => {
+    audioButton.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+  });
+
+  audioButton.addEventListener("mouseleave", () => {
+    audioButton.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+  });
+
   const updateUI = () => {
-    audioUI.textContent = isPlaying
-      ? "Click to pause music"
-      : "Click to play music";
+    audioButton.textContent = isPlaying ? "Pause Music" : "Play Music";
   };
 
   updateUI();
@@ -41,8 +54,11 @@ export const audioSetup = () => {
     }
   };
 
-  document.addEventListener("click", toggleAudio);
-  document.body.appendChild(audioUI);
+  audioButton.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevent event bubbling (OrbitControls)
+    toggleAudio();
+  });
+  document.body.appendChild(audioButton);
 
-  return { audio, toggle: toggleAudio };
+  return { audio, toggle: toggleAudio, button: audioButton };
 };
