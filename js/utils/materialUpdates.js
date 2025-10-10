@@ -8,7 +8,7 @@ export const materialUniformsUpdate = (
   backgroundMaterial.uniforms.iTime.value = elapsedTime;
   backgroundMaterial.uniforms.iMouse.value.x = mouseShader.x;
   backgroundMaterial.uniforms.iMouse.value.y = mouseShader.y;
-  backgroundMaterial.uniforms.lightInfluence.value = 0.5;
+  backgroundMaterial.uniforms.lightInfluence.value = 0.25;
   backgroundMaterial.uniforms.ambientLightIntensity.value = 0.3;
 
   // Update test material uniforms (ShaderMaterial)
