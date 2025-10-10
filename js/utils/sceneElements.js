@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { createCurvedTubes } from "../sceneDecor/tubes.js";
 
 // Create radial gradient textures
 const createRadialGradientTexture = (
@@ -205,32 +206,16 @@ export const createSceneElements = () => {
     });
   });
 
-  // Create cylindrical tubes
+  // Create curved tubes
   const tubeCount = 3;
   const tubeMaterials = [
     materials.tubeGradient1,
     materials.tubeGradient2,
     materials.tubeGradient3,
   ];
-  for (let i = 0; i < tubeCount; i++) {
-    const geometry = new THREE.CylinderGeometry(0.2, 0.2, 6, 8, 1, true);
-    const material = tubeMaterials[i % tubeMaterials.length];
-    const tube = new THREE.Mesh(geometry, material);
 
-    // Position tubes
-    const angle = (i / tubeCount) * Math.PI * 2 + Math.PI / 3;
-    const radius = 18;
-    tube.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
-    tube.rotation.z = Math.random() * 0.3;
-
-    elements.push({
-      mesh: tube,
-      type: "tube",
-      originalPosition: tube.position.clone(),
-      originalRotation: tube.rotation.clone(),
-      animationSpeed: 0.2 + Math.random() * 0.2,
-    });
-  }
+  const curvedTubes = createCurvedTubes(tubeMaterials, tubeCount);
+  elements.push(...curvedTubes);
 
   // Create torus shapes
   const torusCount = 2;
