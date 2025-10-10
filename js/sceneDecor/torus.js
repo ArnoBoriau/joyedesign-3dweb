@@ -2,15 +2,18 @@ import * as THREE from "three";
 
 export const createTorus = (torusMaterials) => {
   const elements = [];
-  const torusCount = 2;
+  const torusCount = Math.floor(Math.random() * 3) + 2;
 
   for (let i = 0; i < torusCount; i++) {
-    const geometry = new THREE.TorusGeometry(2, 0.3, 16, 32);
+    const torusRadius = 1.5 + Math.random() * 1.5;
+    const tubeRadius = 0.4 + Math.random() * 0.4;
+
+    const geometry = new THREE.TorusGeometry(torusRadius, tubeRadius, 16, 32);
     const material = torusMaterials[i % torusMaterials.length];
     const torus = new THREE.Mesh(geometry, material);
 
     const angle = (i / torusCount) * Math.PI * 2;
-    const radius = 25;
+    const radius = 15;
     torus.position.set(
       Math.cos(angle) * radius,
       5 + Math.random() * 4,
