@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { createCurvedTubes } from "../sceneDecor/tubes.js";
+import { createSpheres } from "../sceneDecor/spheres.js";
+import { createTorus } from "../sceneDecor/torus.js";
 
 // Create radial gradient textures
 const createRadialGradientTexture = (
@@ -170,13 +172,11 @@ const createArtisticMaterials = () => {
   return materials;
 };
 
-// Create geometric elements
 export const createSceneElements = () => {
   const materials = createArtisticMaterials();
   const elements = [];
 
-  // Create floating spheres
-  const sphereSizes = [0.8, 1.2, 0.6, 1.0, 0.4];
+  // Material for each shape type
   const sphereMaterials = [
     materials.sphereGradient1,
     materials.sphereGradient2,
@@ -184,69 +184,24 @@ export const createSceneElements = () => {
     materials.sphereGradient4,
     materials.sphereGradient5,
   ];
-  sphereSizes.forEach((size, index) => {
-    const geometry = new THREE.SphereGeometry(size, 32, 32);
-    const material = sphereMaterials[index % sphereMaterials.length];
-    const sphere = new THREE.Mesh(geometry, material);
 
-    // Position spheres
-    const angle = (index / sphereSizes.length) * Math.PI * 2;
-    const radius = 12 + Math.random() * 8;
-    sphere.position.set(
-      Math.cos(angle) * radius,
-      (Math.random() - 0.5) * 10,
-      Math.sin(angle) * radius
-    );
-
-    elements.push({
-      mesh: sphere,
-      type: "sphere",
-      originalPosition: sphere.position.clone(),
-      animationSpeed: 0.3 + Math.random() * 0.4,
-    });
-  });
-
-  // Create curved tubes
-  const tubeCount = 3;
   const tubeMaterials = [
     materials.tubeGradient1,
     materials.tubeGradient2,
     materials.tubeGradient3,
   ];
 
-  const curvedTubes = createCurvedTubes(tubeMaterials, tubeCount);
+  const torusMaterials = [materials.torusGradient1, materials.torusGradient2];
+
+  // Create all scene elements
+  const spheres = createSpheres(sphereMaterials);
+  elements.push(...spheres);
+
+  const curvedTubes = createCurvedTubes(tubeMaterials, 3);
   elements.push(...curvedTubes);
 
-  // Create torus shapes
-  const torusCount = 2;
-  const torusMaterials = [materials.torusGradient1, materials.torusGradient2];
-  for (let i = 0; i < torusCount; i++) {
-    const geometry = new THREE.TorusGeometry(2, 0.3, 16, 32);
-    const material = torusMaterials[i % torusMaterials.length];
-    const torus = new THREE.Mesh(geometry, material);
-
-    // Position torus shapes
-    const angle = (i / torusCount) * Math.PI * 2;
-    const radius = 25;
-    torus.position.set(
-      Math.cos(angle) * radius,
-      5 + Math.random() * 4,
-      Math.sin(angle) * radius
-    );
-    torus.rotation.set(
-      Math.random() * Math.PI,
-      Math.random() * Math.PI,
-      Math.random() * Math.PI
-    );
-
-    elements.push({
-      mesh: torus,
-      type: "torus",
-      originalPosition: torus.position.clone(),
-      originalRotation: torus.rotation.clone(),
-      animationSpeed: 0.15 + Math.random() * 0.1,
-    });
-  }
+  const toruses = createTorus(torusMaterials);
+  elements.push(...toruses);
 
   return elements;
 };
