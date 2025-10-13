@@ -7,6 +7,11 @@ export const controlsSetup = (camera, renderer) => {
   controls.minDistance = 5;
   controls.maxDistance = 45; // sphere radius 50
 
+  // Disable controls for custom mouse movement
+  controls.enableRotate = false;
+  controls.enableZoom = false;
+  controls.enablePan = false;
+
   return controls;
 };
 
