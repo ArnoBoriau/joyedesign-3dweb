@@ -1,3 +1,4 @@
+import * as THREE from "three";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
@@ -12,8 +13,8 @@ const ColorGradingShader = {
   uniforms: {
     tDiffuse: { value: null },
     exposure: { value: 1.0 },
-    contrast: { value: 1.02 },
-    saturation: { value: 1.05 },
+    contrast: { value: 1.02 }, // 1.02
+    saturation: { value: 1.05 }, // 1.05
     brightness: { value: 0.0 },
     warmth: { value: 0.0 },
   },
@@ -22,8 +23,21 @@ const ColorGradingShader = {
 };
 
 export const setupPostProcessing = (renderer, scene, camera) => {
+  // Render target for anti-aliasing
+  const renderTarget = new THREE.WebGLRenderTarget(
+    window.innerWidth,
+    window.innerHeight,
+    {
+      minFilter: THREE.LinearFilter,
+      magFilter: THREE.LinearFilter,
+      format: THREE.RGBAFormat,
+      type: THREE.FloatType,
+      samples: 8,
+    }
+  );
+
   // Create effect composer
-  const composer = new EffectComposer(renderer);
+  const composer = new EffectComposer(renderer, renderTarget);
 
   // Renders the scene true post
   const renderPass = new RenderPass(scene, camera);
@@ -46,6 +60,7 @@ export const setupPostProcessing = (renderer, scene, camera) => {
     const width = window.innerWidth;
     const height = window.innerHeight;
     composer.setSize(width, height);
+    renderTarget.setSize(width, height);
     fxaaPass.uniforms["resolution"].value.set(1 / width, 1 / height);
   };
 
