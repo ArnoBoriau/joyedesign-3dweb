@@ -12,11 +12,11 @@ const ColorGradingShader = {
   name: "ColorGradingShader",
   uniforms: {
     tDiffuse: { value: null },
-    exposure: { value: 1.0 },
-    contrast: { value: 1.02 }, // 1.02
-    saturation: { value: 1.05 }, // 1.05
-    brightness: { value: 0.0 },
-    warmth: { value: 0.0 },
+    exposure: { value: 0.95 },
+    contrast: { value: 1.05 },
+    saturation: { value: 1.35 },
+    brightness: { value: 0.01 },
+    warmth: { value: 0.2 },
   },
   vertexShader: colorGradingVertexShader,
   fragmentShader: colorGradingFragmentShader,
@@ -50,15 +50,15 @@ export const setupPostProcessing = (renderer, scene, camera) => {
   // Anti-aliasing pass
   const fxaaPass = new ShaderPass(FXAAShader);
   fxaaPass.uniforms["resolution"].value.set(
-    1 / window.innerWidth,
-    1 / window.innerHeight
+    1 / (window.innerWidth * window.devicePixelRatio),
+    1 / (window.innerHeight * window.devicePixelRatio)
   );
   composer.addPass(fxaaPass);
 
   // Handle window resize
   const handleResize = () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = window.innerWidth * window.devicePixelRatio;
+    const height = window.innerHeight * window.devicePixelRatio;
     composer.setSize(width, height);
     renderTarget.setSize(width, height);
     fxaaPass.uniforms["resolution"].value.set(1 / width, 1 / height);
