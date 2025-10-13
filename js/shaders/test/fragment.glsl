@@ -23,9 +23,9 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     float mouseNormalizeX = 0.10 + (iMouse.x / iResolution.x) * 0.750;
     float mouseNormalizeY = 1.0 + (iMouse.y / iResolution.x) * 2.5;
 
-    float s = (2.0*mouseNormalizeY);		//stripes
-    float st = 0.25;		                //stripe thickness
-    float repetition = 4.0;             // Add repetition factor
+    float s = (1.5*mouseNormalizeY);		//stripes - reduced intensity
+    float st = 0.35;		                //stripe thickness - slightly thicker
+    float repetition = 3.0;             // Less repetition for subtlety
 
     vec2 uv = rot(fragCoord/iResolution.xy * repetition, 0.0+sin(iTime)*0.000005);
 
@@ -34,8 +34,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     uv.y += osc * sin(iTime+uv.x*2.);
     uv.y = fract(uv.y*s);
     
-    vec3 bg = vec3(.9,.8,.2);
-    vec3 fg = vec3(.05,.05,.1);
+    vec3 bg = vec3(0.95, 0.92, 0.88);  // Subtle warm white
+    vec3 fg = vec3(0.85, 0.82, 0.78);  // Slightly darker warm tone
     
     // Subtle anti-aliasing - just enough to smooth edges
     float aa = 0.005;  // Much more subtle anti-aliasing
