@@ -5,7 +5,7 @@ let originalPositions = new Map();
 export const floatingAnimation = (elapsedTime, logoGroup) => {
   if (!logoGroup) return;
 
-  const floatAmplitude = 0.1;
+  const floatAmplitude = 0.2;
   const floatSpeed = 1.15;
   logoGroup.position.y = Math.sin(elapsedTime * floatSpeed) * floatAmplitude;
 
@@ -22,7 +22,7 @@ export const lettersMouseFollow = (lettersGroup, mouse) => {
   lettersGroup.rotation.x = -mouse.y * mouseRotationInfluence * 1.25;
 };
 
-export const clickEffect = (logoGroup, camera) => {
+export const clickEffect = (logoGroup) => {
   if (!logoGroup) return;
 
   if (!originalPositions.has("logoRotation")) {

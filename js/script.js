@@ -2,7 +2,11 @@ import * as THREE from "three";
 import { gsap } from "gsap";
 
 import { lightingSetup } from "./setup/lightingSetup.js";
-import { controlsSetup, updateCameraFromMouse } from "./setup/controlsSetup.js";
+import {
+  controlsSetup,
+  updateCameraFromMouse,
+  updateCameraFloat,
+} from "./setup/controlsSetup.js";
 import { audioSetup } from "./setup/audioSetup.js";
 import { blenderLoader } from "./setup/blenderSetup.js";
 
@@ -101,6 +105,7 @@ const draw = () => {
 
   floatingAnimation(elapsedTime, logoGroup);
   lettersMouseFollow(lettersGroup, mouse);
+  updateCameraFloat(camera, elapsedTime);
   materialUniformsUpdate(
     elapsedTime,
     backgroundMaterial,

@@ -33,3 +33,17 @@ export const updateCameraFromMouse = (camera, mouseX, mouseY) => {
 
   camera.lookAt(0, 0, 0);
 };
+
+export const updateCameraFloat = (camera, elapsedTime) => {
+  const floatAmplitude = 0.05;
+  const floatSpeed = 0.8;
+
+  const floatY = Math.sin(elapsedTime * floatSpeed) * floatAmplitude;
+
+  const driftAmplitude = 0.02;
+  const driftSpeed = 0.6;
+  const floatX = Math.sin(elapsedTime * driftSpeed) * driftAmplitude;
+
+  camera.position.y += floatY;
+  camera.position.x += floatX;
+};
