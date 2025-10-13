@@ -16,45 +16,63 @@ export const floatingAnimation = (elapsedTime, logoGroup) => {
 export const lettersMouseFollow = (lettersGroup, mouse) => {
   if (!lettersGroup) return;
 
-  const mouseRotationInfluence = 0.15;
+  const mouseRotationInfluence = 0.2;
 
   lettersGroup.rotation.z = -mouse.x * mouseRotationInfluence;
-  lettersGroup.rotation.x = -mouse.y * mouseRotationInfluence * 0.7;
+  lettersGroup.rotation.x = -mouse.y * mouseRotationInfluence * 1.25;
 };
 
 export const clickEffect = (logoGroup, camera) => {
   if (!logoGroup) return;
 
+  if (!originalPositions.has("logoRotation")) {
+    originalPositions.set("logoRotation", {
+      x: logoGroup.rotation.x,
+      y: logoGroup.rotation.y,
+      z: logoGroup.rotation.z,
+    });
+  }
+
   if (!originalPositions.has("logoGroup")) {
     originalPositions.set("logoGroup", logoGroup.position.clone());
   }
 
+  const originalRotation = originalPositions.get("logoRotation");
   const originalPos = originalPositions.get("logoGroup");
 
-  gsap.to(logoGroup.position, {
-    z: originalPos.z - 5,
-    duration: 0.4,
-    ease: "power2.out",
-    onComplete: () => {
-      gsap.to(logoGroup.position, {
-        z: originalPos.z,
-        duration: 1.8,
-        ease: "power2.inOut",
-      });
-    },
-  });
+  // Smooth : )
+  const tl = gsap.timeline();
 
-  const originalCameraZ = camera.position.z;
-  gsap.to(camera.position, {
-    z: originalCameraZ + 3,
+  tl.to(logoGroup.position, {
+    y: originalPos.y - 1.5,
     duration: 0.2,
-    ease: "power2.out",
-    onComplete: () => {
-      gsap.to(camera.position, {
-        z: originalCameraZ,
-        duration: 2.0,
+    ease: "power2.inOut",
+  })
+    .to(logoGroup.position, {
+      y: originalPos.y + 4,
+      duration: 0.5,
+      ease: "power3.out",
+    })
+    .to(
+      logoGroup.rotation,
+      {
+        y: originalRotation.y + Math.PI * 2,
+        duration: 1.2,
         ease: "power2.inOut",
-      });
-    },
-  });
+        onComplete: () => {
+          logoGroup.rotation.y = originalRotation.y; // Reset
+        },
+      },
+      "<"
+    )
+    .to(logoGroup.position, {
+      y: originalPos.y - 0.5,
+      duration: 0.3,
+      ease: "power3.in",
+    })
+    .to(logoGroup.position, {
+      y: originalPos.y,
+      duration: 0.2,
+      ease: "elastic.out(2, 0.3)",
+    });
 };
