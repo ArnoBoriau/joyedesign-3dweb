@@ -5,7 +5,7 @@ import { lightingSetup } from "./setup/lightingSetup.js";
 import {
   controlsSetup,
   updateCameraFromMouse,
-  updateCameraFloat,
+  updateCameraLookAtFloat,
 } from "./setup/controlsSetup.js";
 import { audioSetup } from "./setup/audioSetup.js";
 import { blenderLoader } from "./setup/blenderSetup.js";
@@ -105,7 +105,7 @@ const draw = () => {
 
   floatingAnimation(elapsedTime, logoGroup);
   lettersMouseFollow(lettersGroup, mouse);
-  updateCameraFloat(camera, elapsedTime);
+  updateCameraLookAtFloat(camera, elapsedTime);
   materialUniformsUpdate(
     elapsedTime,
     backgroundMaterial,
@@ -113,7 +113,6 @@ const draw = () => {
     mouseShader
   );
 
-  controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(draw);
 };

@@ -28,22 +28,30 @@ export const updateCameraFromMouse = (camera, mouseX, mouseY) => {
 
   camera.position.x = Math.sin(orbitAngle) * distance * 0.5;
   camera.position.z = Math.cos(orbitAngle) * distance;
-
   camera.position.y = normalizedX * 2;
-
-  camera.lookAt(0, 0, 0);
 };
 
-export const updateCameraFloat = (camera, elapsedTime) => {
-  const floatAmplitude = 0.05;
-  const floatSpeed = 0.8;
+// Animate the camera's lookAt target point
+export const updateCameraLookAtFloat = (camera, elapsedTime) => {
+  const baseX = 0;
+  const baseY = 0;
+  const baseZ = 0;
 
-  const floatY = Math.sin(elapsedTime * floatSpeed) * floatAmplitude;
+  const floatAmplitudeX = 0.3;
+  const floatAmplitudeY = 0.2;
+  const floatAmplitudeZ = 0.15;
 
-  const driftAmplitude = 0.02;
-  const driftSpeed = 0.6;
-  const floatX = Math.sin(elapsedTime * driftSpeed) * driftAmplitude;
+  const floatSpeedX = 0.6;
+  const floatSpeedY = 0.8;
+  const floatSpeedZ = 0.4;
 
-  camera.position.y += floatY;
-  camera.position.x += floatX;
+  const floatX = Math.sin(elapsedTime * floatSpeedX) * floatAmplitudeX;
+  const floatY = Math.sin(elapsedTime * floatSpeedY) * floatAmplitudeY;
+  const floatZ = Math.sin(elapsedTime * floatSpeedZ) * floatAmplitudeZ;
+
+  const targetX = baseX + floatX;
+  const targetY = baseY + floatY;
+  const targetZ = baseZ + floatZ;
+
+  camera.lookAt(targetX, targetY, targetZ);
 };
