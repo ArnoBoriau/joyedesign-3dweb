@@ -3,6 +3,7 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 
 import colorGradingFragmentShader from "../shaders/colorGrading/fragment.glsl?raw";
 import colorGradingVertexShader from "../shaders/colorGrading/vertex.glsl?raw";
@@ -47,6 +48,15 @@ export const setupPostProcessing = (renderer, scene, camera) => {
   const colorGradingPass = new ShaderPass(ColorGradingShader);
   composer.addPass(colorGradingPass);
 
+  // Bloom pass
+  const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.15,
+    0.5,
+    0.95
+  );
+  composer.addPass(bloomPass);
+
   // Anti-aliasing pass
   const fxaaPass = new ShaderPass(FXAAShader);
   fxaaPass.uniforms["resolution"].value.set(
@@ -55,7 +65,6 @@ export const setupPostProcessing = (renderer, scene, camera) => {
   );
   composer.addPass(fxaaPass);
 
-  // Handle window resize
   const handleResize = () => {
     const width = window.innerWidth * window.devicePixelRatio;
     const height = window.innerHeight * window.devicePixelRatio;
