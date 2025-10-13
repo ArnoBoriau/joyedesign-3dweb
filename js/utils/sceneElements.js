@@ -4,6 +4,58 @@ import { createSpheres } from "../sceneDecor/spheres.js";
 import { createTorus } from "../sceneDecor/torus.js";
 import { createFlatCylinders } from "../sceneDecor/cylinders.js";
 
+// Manual positioning config
+const MANUAL_POSITIONS = {
+  spheres: [
+    { x: 7, y: 3, z: -1, rotation: { x: 0, y: 0, z: 0 } },
+    { x: -6, y: 4, z: 3, rotation: { x: 0, y: 0, z: 0 } },
+    { x: 3, y: -2, z: 5, rotation: { x: 0, y: 0, z: 0 } },
+    { x: -3, y: 7, z: -3, rotation: { x: 0, y: 0, z: 0 } },
+    { x: 8, y: 1, z: 2, rotation: { x: 0, y: 0, z: 0 } },
+  ],
+
+  tubes: [
+    { x: -2, y: 2, z: 1, rotation: { x: -0.7, y: 0.4, z: 1.0 } },
+    { x: 3, y: -1, z: -1, rotation: { x: -0.9, y: 0.2, z: 1.3 } },
+    { x: 1, y: 3, z: -2, rotation: { x: -0.6, y: 0.8, z: 0.9 } },
+  ],
+
+  toruses: [
+    { x: 4, y: 5, z: -2, rotation: { x: -0.8, y: 0.3, z: 1.2 } },
+    { x: -5, y: -1, z: 2, rotation: { x: -0.5, y: -1.5, z: 0.2 } },
+  ],
+
+  cylinders: [
+    { x: 5, y: 5, z: 1, rotation: { x: -0.8, y: 0.5, z: 1.1 } },
+    { x: -8, y: 0, z: -1, rotation: { x: -0.7, y: 0.2, z: 1.4 } },
+    { x: 4, y: -3, z: -5, rotation: { x: 0.6, y: 0.7, z: 0.8 } },
+    { x: -1, y: 8, z: 2, rotation: { x: -0.6, y: 0.4, z: 1.2 } },
+  ],
+};
+
+const applyManualPositioning = (elements, positions) => {
+  elements.forEach((element, index) => {
+    if (positions[index]) {
+      const pos = positions[index];
+
+      element.mesh.position.set(pos.x, pos.y, pos.z);
+
+      if (pos.rotation) {
+        element.mesh.rotation.set(
+          pos.rotation.x,
+          pos.rotation.y,
+          pos.rotation.z
+        );
+      }
+
+      element.originalPosition = element.mesh.position.clone();
+      element.originalRotation = element.mesh.rotation.clone();
+    }
+  });
+
+  return elements;
+};
+
 // Create radial gradient textures
 const createRadialGradientTexture = (
   color1,
@@ -225,18 +277,34 @@ export const createSceneElements = () => {
     materials.cylinderGradient3,
   ];
 
-  // Create all scene elements
+  // Create all scene elements with manual positioning
   const spheres = createSpheres(sphereMaterials);
-  elements.push(...spheres);
+  const positionedSpheres = applyManualPositioning(
+    spheres,
+    MANUAL_POSITIONS.spheres
+  );
+  elements.push(...positionedSpheres);
 
   const curvedTubes = createCurvedTubes(tubeMaterials, 3);
-  elements.push(...curvedTubes);
+  const positionedTubes = applyManualPositioning(
+    curvedTubes,
+    MANUAL_POSITIONS.tubes
+  );
+  elements.push(...positionedTubes);
 
   const toruses = createTorus(torusMaterials);
-  elements.push(...toruses);
+  const positionedToruses = applyManualPositioning(
+    toruses,
+    MANUAL_POSITIONS.toruses
+  );
+  elements.push(...positionedToruses);
 
   const flatCylinders = createFlatCylinders(cylinderMaterials);
-  elements.push(...flatCylinders);
+  const positionedCylinders = applyManualPositioning(
+    flatCylinders,
+    MANUAL_POSITIONS.cylinders
+  );
+  elements.push(...positionedCylinders);
 
   return elements;
 };

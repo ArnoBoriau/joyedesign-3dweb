@@ -53,7 +53,7 @@ const generateCurveParameters = () => {
   };
 };
 
-export const createCurvedTube = (material, basePosition, index, totalCount) => {
+export const createCurvedTube = (material, index, totalCount) => {
   const angle = (index / totalCount) * Math.PI * 2 + Math.PI / 3;
   const radius = 18;
 
@@ -73,20 +73,14 @@ export const createCurvedTube = (material, basePosition, index, totalCount) => {
   const geometry = new THREE.TubeGeometry(curve, 32, 0.2, 8, false);
   const tube = new THREE.Mesh(geometry, material);
 
-  tube.rotation.x = (Math.random() - 0.5) * Math.PI;
-  tube.rotation.y = Math.random() * Math.PI * 2;
-  tube.rotation.z = (Math.random() - 0.5) * Math.PI;
-
-  const positionOffset = 2;
-  tube.position.x += (Math.random() - 0.5) * positionOffset;
-  tube.position.y += (Math.random() - 0.5) * positionOffset;
-  tube.position.z += (Math.random() - 0.5) * positionOffset;
+  tube.position.set(0, 0, 0);
+  tube.rotation.set(0, 0, 0);
 
   return {
     mesh: tube,
     type: "tube",
-    originalPosition: tube.position.clone(),
-    originalRotation: tube.rotation.clone(),
+    originalPosition: new THREE.Vector3(0, 0, 0),
+    originalRotation: new THREE.Euler(0, 0, 0),
     animationSpeed: 0.2 + Math.random() * 0.2,
   };
 };
@@ -96,7 +90,7 @@ export const createCurvedTubes = (materials, count = 3) => {
 
   for (let i = 0; i < count; i++) {
     const material = materials[i % materials.length];
-    const tubeElement = createCurvedTube(material, null, i, count);
+    const tubeElement = createCurvedTube(material, i, count);
     tubes.push(tubeElement);
   }
 

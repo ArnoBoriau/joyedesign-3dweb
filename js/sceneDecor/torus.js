@@ -2,34 +2,24 @@ import * as THREE from "three";
 
 export const createTorus = (torusMaterials) => {
   const elements = [];
-  const torusCount = Math.floor(Math.random() * 3) + 2;
+  const torusCount = torusMaterials.length;
 
   for (let i = 0; i < torusCount; i++) {
-    const torusRadius = 1.5 + Math.random() * 1.5;
-    const tubeRadius = 0.4 + Math.random() * 0.4;
+    const torusRadius = 0.8 + Math.random() * 0.6;
+    const tubeRadius = 0.3 + Math.random() * 0.2;
 
     const geometry = new THREE.TorusGeometry(torusRadius, tubeRadius, 16, 32);
     const material = torusMaterials[i % torusMaterials.length];
     const torus = new THREE.Mesh(geometry, material);
 
-    const angle = (i / torusCount) * Math.PI * 2;
-    const radius = 15;
-    torus.position.set(
-      Math.cos(angle) * radius,
-      5 + Math.random() * 4,
-      Math.sin(angle) * radius
-    );
-    torus.rotation.set(
-      Math.random() * Math.PI,
-      Math.random() * Math.PI,
-      Math.random() * Math.PI
-    );
+    torus.position.set(0, 0, 0);
+    torus.rotation.set(0, 0, 0);
 
     elements.push({
       mesh: torus,
       type: "torus",
-      originalPosition: torus.position.clone(),
-      originalRotation: torus.rotation.clone(),
+      originalPosition: new THREE.Vector3(0, 0, 0),
+      originalRotation: new THREE.Euler(0, 0, 0),
       animationSpeed: 0.15 + Math.random() * 0.1,
     });
   }
