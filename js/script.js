@@ -86,7 +86,7 @@ const init = () => {
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
-    updateCameraFromMouse(camera, e.clientY);
+    updateCameraFromMouse(camera, e.clientX, e.clientY);
   });
 
   window.addEventListener("click", (e) => {
