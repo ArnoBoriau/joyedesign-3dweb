@@ -9,3 +9,13 @@ export const controlsSetup = (camera, renderer) => {
 
   return controls;
 };
+
+export const updateCameraFromMouse = (camera, mouseY) => {
+  const normalizedY = mouseY / window.innerHeight;
+
+  const minDistance = 7.5;
+  const maxDistance = 35;
+  const targetZ = minDistance + normalizedY * (maxDistance - minDistance);
+
+  camera.position.z = targetZ;
+};
