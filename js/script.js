@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { gsap } from "gsap";
 
 import { lightingSetup } from "./setup/lightingSetup.js";
 import { controlsSetup } from "./setup/controlsSetup.js";
@@ -6,7 +7,11 @@ import { audioSetup } from "./setup/audioSetup.js";
 import { blenderLoader } from "./setup/blenderSetup.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
-import { floatingAnimation, lettersMouseFollow } from "./utils/animations.js";
+import {
+  floatingAnimation,
+  lettersMouseFollow,
+  clickEffect,
+} from "./utils/animations.js";
 import { materialUniformsUpdate } from "./utils/materialUpdates.js";
 
 const $canvas = document.getElementById("webgl");
@@ -80,6 +85,10 @@ const init = () => {
 
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  });
+
+  window.addEventListener("click", (e) => {
+    clickEffect(logoGroup, camera);
   });
 
   requestAnimationFrame(draw);
