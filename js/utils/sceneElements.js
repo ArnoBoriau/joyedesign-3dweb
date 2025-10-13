@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { createCurvedTubes } from "../sceneDecor/tubes.js";
 import { createSpheres } from "../sceneDecor/spheres.js";
 import { createTorus } from "../sceneDecor/torus.js";
+import { createFlatCylinders } from "../sceneDecor/cylinders.js";
 
 // Create radial gradient textures
 const createRadialGradientTexture = (
@@ -169,6 +170,31 @@ const createArtisticMaterials = () => {
     map: torusGradients[1],
   });
 
+  // Cylinder materials - Emissive glow effect using consistent color scheme
+  materials.cylinderGradient1 = new THREE.MeshStandardMaterial({
+    color: new THREE.Color("#ffcd01"),
+    emissive: new THREE.Color("#e17055"),
+    emissiveIntensity: 0.2,
+    metalness: 0.0,
+    roughness: 0.7,
+  });
+
+  materials.cylinderGradient2 = new THREE.MeshStandardMaterial({
+    color: new THREE.Color("#ff8c42"),
+    emissive: new THREE.Color("#d63031"),
+    emissiveIntensity: 0.25,
+    metalness: 0.1,
+    roughness: 0.6,
+  });
+
+  materials.cylinderGradient3 = new THREE.MeshStandardMaterial({
+    color: new THREE.Color("#6c5ce7"),
+    emissive: new THREE.Color("#fd79a8"),
+    emissiveIntensity: 0.15,
+    metalness: 0.0,
+    roughness: 0.8,
+  });
+
   return materials;
 };
 
@@ -193,6 +219,12 @@ export const createSceneElements = () => {
 
   const torusMaterials = [materials.torusGradient1, materials.torusGradient2];
 
+  const cylinderMaterials = [
+    materials.cylinderGradient1,
+    materials.cylinderGradient2,
+    materials.cylinderGradient3,
+  ];
+
   // Create all scene elements
   const spheres = createSpheres(sphereMaterials);
   elements.push(...spheres);
@@ -202,6 +234,9 @@ export const createSceneElements = () => {
 
   const toruses = createTorus(torusMaterials);
   elements.push(...toruses);
+
+  const flatCylinders = createFlatCylinders(cylinderMaterials);
+  elements.push(...flatCylinders);
 
   return elements;
 };
