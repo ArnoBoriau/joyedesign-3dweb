@@ -29,6 +29,7 @@ let mainMaterial;
 let testMaterial;
 let logoGroup, lettersGroup, logoBackgroundGroup;
 let postProcessing;
+let sceneElements = [];
 
 const mouse = new THREE.Vector2();
 const mouseShader = new THREE.Vector2();
