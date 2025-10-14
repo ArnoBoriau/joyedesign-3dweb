@@ -1,14 +1,24 @@
 import * as THREE from "three";
+import { gsap } from "gsap";
 
 import { lightingSetup } from "./setup/lightingSetup.js";
-import { controlsSetup } from "./setup/controlsSetup.js";
+import {
+  controlsSetup,
+  updateCameraFromMouse,
+  updateCameraLookAtFloat,
+} from "./setup/controlsSetup.js";
 import { audioSetup } from "./setup/audioSetup.js";
 import { blenderLoader } from "./setup/blenderSetup.js";
 import { setupPostProcessing } from "./setup/postProcessingSetup.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
-import { floatingAnimation, lettersMouseFollow } from "./utils/animations.js";
+import {
+  floatingAnimation,
+  lettersMouseFollow,
+  clickEffect,
+} from "./utils/animations.js";
 import { materialUniformsUpdate } from "./utils/materialUpdates.js";
+import { createSceneElements } from "./utils/sceneElements.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -19,6 +29,7 @@ let mainMaterial;
 let testMaterial;
 let logoGroup, lettersGroup, logoBackgroundGroup;
 let postProcessing;
+
 const mouse = new THREE.Vector2();
 const mouseShader = new THREE.Vector2();
 
@@ -61,6 +72,12 @@ const setup = () => {
   background = new THREE.Mesh(geometry, backgroundMaterial);
   scene.add(background);
 
+  // Create scene elements
+  sceneElements = createSceneElements();
+  sceneElements.forEach((element) => {
+    scene.add(element.mesh);
+  });
+
   lightingSetup(scene);
 
   controls = controlsSetup(camera, renderer);
@@ -84,6 +101,12 @@ const init = () => {
 
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+    updateCameraFromMouse(camera, e.clientX, e.clientY);
+  });
+
+  window.addEventListener("click", (e) => {
+    clickEffect(logoGroup, camera);
   });
 
   requestAnimationFrame(draw);
@@ -94,6 +117,7 @@ const draw = () => {
 
   floatingAnimation(elapsedTime, logoGroup);
   lettersMouseFollow(lettersGroup, mouse);
+  updateCameraLookAtFloat(camera, elapsedTime);
   materialUniformsUpdate(
     elapsedTime,
     backgroundMaterial,
