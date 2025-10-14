@@ -9,6 +9,7 @@ import {
 } from "./setup/controlsSetup.js";
 import { audioSetup } from "./setup/audioSetup.js";
 import { blenderLoader } from "./setup/blenderSetup.js";
+import { setupPostProcessing } from "./setup/postProcessingSetup.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
 import {
@@ -27,7 +28,8 @@ let lettersMaterial;
 let mainMaterial;
 let testMaterial;
 let logoGroup, lettersGroup, logoBackgroundGroup;
-let sceneElements = [];
+let postProcessing;
+
 const mouse = new THREE.Vector2();
 const mouseShader = new THREE.Vector2();
 
@@ -80,6 +82,8 @@ const setup = () => {
 
   controls = controlsSetup(camera, renderer);
 
+  postProcessing = setupPostProcessing(renderer, scene, camera);
+
   audioSetup();
 };
 
@@ -121,7 +125,11 @@ const draw = () => {
     mouseShader
   );
 
-  renderer.render(scene, camera);
+  controls.update();
+
+  // render via post
+  postProcessing.composer.render();
+
   requestAnimationFrame(draw);
 };
 
@@ -133,6 +141,8 @@ const resize = () => {
   );
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+
+  postProcessing.handleResize();
 };
 
 init();
