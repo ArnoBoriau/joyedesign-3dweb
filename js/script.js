@@ -17,6 +17,7 @@ import {
   clickEffect,
 } from "./utils/animations.js";
 import { materialUniformsUpdate } from "./utils/materialUpdates.js";
+import { createSceneElements } from "./utils/sceneElements.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -26,6 +27,7 @@ let lettersMaterial;
 let mainMaterial;
 let testMaterial;
 let logoGroup, lettersGroup, logoBackgroundGroup;
+let sceneElements = [];
 const mouse = new THREE.Vector2();
 const mouseShader = new THREE.Vector2();
 
@@ -67,6 +69,12 @@ const setup = () => {
   const geometry = new THREE.SphereGeometry(50, 32, 32);
   background = new THREE.Mesh(geometry, backgroundMaterial);
   scene.add(background);
+
+  // Create scene elements
+  sceneElements = createSceneElements();
+  sceneElements.forEach((element) => {
+    scene.add(element.mesh);
+  });
 
   lightingSetup(scene);
 
