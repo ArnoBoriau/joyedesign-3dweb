@@ -73,10 +73,19 @@ const setup = () => {
   background = new THREE.Mesh(geometry, backgroundMaterial);
   scene.add(background);
 
-  // Create scene elements
   sceneElements = createSceneElements();
-  sceneElements.forEach((element) => {
+  sceneElements.forEach((element, index) => {
+    element.mesh.scale.set(0, 0, 0);
     scene.add(element.mesh);
+
+    gsap.to(element.mesh.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 0.6,
+      ease: "back.out(1.5)",
+      delay: Math.random() * 0.2 + 0.4,
+    });
   });
 
   lightingSetup(scene);
