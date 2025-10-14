@@ -1,13 +1,24 @@
 import * as THREE from "three";
+import { gsap } from "gsap";
 
 import { lightingSetup } from "./setup/lightingSetup.js";
-import { controlsSetup } from "./setup/controlsSetup.js";
+import {
+  controlsSetup,
+  updateCameraFromMouse,
+  updateCameraLookAtFloat,
+} from "./setup/controlsSetup.js";
 import { audioSetup } from "./setup/audioSetup.js";
 import { blenderLoader } from "./setup/blenderSetup.js";
+import { setupPostProcessing } from "./setup/postProcessingSetup.js";
 
 import { createShaderMaterials } from "./utils/materials.js";
-import { floatingAnimation, lettersMouseFollow } from "./utils/animations.js";
+import {
+  floatingAnimation,
+  lettersMouseFollow,
+  clickEffect,
+} from "./utils/animations.js";
 import { materialUniformsUpdate } from "./utils/materialUpdates.js";
+import { createSceneElements } from "./utils/sceneElements.js";
 
 const $canvas = document.getElementById("webgl");
 let renderer, camera, scene, controls;
@@ -17,6 +28,9 @@ let lettersMaterial;
 let mainMaterial;
 let testMaterial;
 let logoGroup, lettersGroup, logoBackgroundGroup;
+let postProcessing;
+let sceneElements = [];
+
 const mouse = new THREE.Vector2();
 const mouseShader = new THREE.Vector2();
 
@@ -59,9 +73,26 @@ const setup = () => {
   background = new THREE.Mesh(geometry, backgroundMaterial);
   scene.add(background);
 
+  sceneElements = createSceneElements();
+  sceneElements.forEach((element, index) => {
+    element.mesh.scale.set(0, 0, 0);
+    scene.add(element.mesh);
+
+    gsap.to(element.mesh.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 0.6,
+      ease: "back.out(1.5)",
+      delay: Math.random() * 0.2 + 0.4,
+    });
+  });
+
   lightingSetup(scene);
 
   controls = controlsSetup(camera, renderer);
+
+  postProcessing = setupPostProcessing(renderer, scene, camera);
 
   audioSetup();
 };
@@ -80,6 +111,12 @@ const init = () => {
 
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+    updateCameraFromMouse(camera, e.clientX, e.clientY);
+  });
+
+  window.addEventListener("click", (e) => {
+    clickEffect(logoGroup, camera);
   });
 
   requestAnimationFrame(draw);
@@ -90,6 +127,7 @@ const draw = () => {
 
   floatingAnimation(elapsedTime, logoGroup);
   lettersMouseFollow(lettersGroup, mouse);
+  updateCameraLookAtFloat(camera, elapsedTime);
   materialUniformsUpdate(
     elapsedTime,
     backgroundMaterial,
@@ -98,7 +136,10 @@ const draw = () => {
   );
 
   controls.update();
-  renderer.render(scene, camera);
+
+  // render via post
+  postProcessing.composer.render();
+
   requestAnimationFrame(draw);
 };
 
@@ -110,6 +151,8 @@ const resize = () => {
   );
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+
+  postProcessing.handleResize();
 };
 
 init();
