@@ -198,7 +198,7 @@ const init = async () => {
   console.log("Setting up mobile controls...");
   mobileControls = setupMobileControls(camera);
   isOnMobileDevice = mobileControls.isMobile;
-  
+
   // Create touch data handler for mobile
   const handleTouchData = updateTouchData(camera);
 
@@ -231,7 +231,7 @@ const init = async () => {
 
       mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
       mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
-      
+
       // Update camera position for mobile devices
       if (isOnMobileDevice) {
         handleTouchData(touch.clientX, touch.clientY);
@@ -246,12 +246,12 @@ const init = async () => {
   window.addEventListener("touchstart", (e) => {
     if (e.touches.length > 0) {
       const touch = e.touches[0];
-      
+
       // Update touch data for mobile camera control
       if (isOnMobileDevice) {
         handleTouchData(touch.clientX, touch.clientY);
       }
-      
+
       // Trigger click effect
       clickEffect(logoGroup, camera);
     }

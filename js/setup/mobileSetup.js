@@ -97,7 +97,7 @@ const requestGyroscopePermission = async () => {
 const updateTouchDataFunc = (camera) => {
   return (x, y) => {
     const touchData = { x: x / window.innerWidth, y: y / window.innerHeight };
-    
+
     // Update camera from touch
     const normalizedX = (touchData.x * 2 - 1) * 0.35;
     const normalizedY = touchData.y;
