@@ -1,21 +1,47 @@
-*
-{
-    margin: 0;
-    padding: 0;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html,
-body
-{
-    overflow: hidden;
+body {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #000;
 }
 
-#webgl
-{
+#webgl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  outline: none;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Mobile optimizations for notches and system UI */
+@media (max-width: 768px) {
+  html,
+  body {
+    /* Use dynamic viewport height to account for browser UI */
+    width: 100dvw;
+    height: 100dvh;
     position: fixed;
     top: 0;
     left: 0;
-    outline: none;
-    width: 100%;
-    height: 100%;
+  }
+
+  #webgl {
+    width: 100dvw;
+    height: 100dvh;
+  }
 }

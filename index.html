@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>JoyeDesign3D</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel='icon' href='favicon.ico'>
@@ -12,6 +12,28 @@
 
 <body>
   <canvas id="webgl"></canvas>
+
+  <!-- Mobile Preload Modal (Warning + Gyroscope Permission) -->
+  <div id="mobile-preload-modal"
+    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.95); z-index: 2000; display: none; align-items: center; justify-content: center;">
+    <div
+      style="background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 40px; max-width: 320px; text-align: center; color: #fff; font-family: sans-serif;">
+      <!-- <h1 style="font-size: 28px; margin-bottom: 12px;">⚠️</h1> -->
+      <h2 style="font-size: 20px; margin-bottom: 16px; font-weight: 600;">Mobile Device Detected</h2>
+      <p style="font-size: 14px; line-height: 1.6; color: #ccc; margin-bottom: 24px;">
+        This experience uses advanced technology that are not supported on all mobile devices yet.
+        For the best experience, we recommend using a desktop.
+      </p>
+      <p style="font-size: 12px; color: #999; margin-bottom: .5rem;">
+        You can still continue if you prefer.
+      </p>
+      <button id="mobile-preload-ok-btn"
+        style="width: 100%; color: white; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); padding: .75rem 1rem; border-radius: 5px; font-size: 1rem; font-family: Arial, sans-serif; cursor: pointer; transition: background-color 0.3s ease;">
+        Continue anyway
+      </button>
+    </div>
+  </div>
+
   <script src="js/script.js" type="module"></script>
 </body>
 
