@@ -123,21 +123,17 @@ const showError = (message) => {
   document.body.appendChild(errorDiv);
 };
 
-const setup = () => {
-  // Detect if device is likely older/mobile with limited capabilities
-  const isOldDevice = () => {
-    // Check if max MSAA samples is very low (older devices)
-    const canvas = document.createElement("canvas");
-    const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
-    if (gl) {
-      const maxSamples = gl.getParameter(gl.MAX_SAMPLES || 0x8d57) || 1;
-      return maxSamples <= 2;
-    }
-    return /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
-  };
+// Check if device is mobile - disable post-processing on all mobile devices
+// Mobile GPUs overheat with post-processing effects regardless of model
+const isMobileDevice = () => {
+  return /iPhone|iPad|iPod|Android|webOS|BlackBerry|Opera Mini/i.test(
+    navigator.userAgent,
+  );
+};
 
-  // Disable MSAA on older devices, use FXAA instead
-  const useAntialias = !isOldDevice();
+const setup = () => {
+  // Disable MSAA on mobile devices for better performance
+  const useAntialias = !isMobileDevice();
   console.log("Using hardware antialiasing:", useAntialias);
 
   renderer = new THREE.WebGLRenderer({
@@ -188,29 +184,22 @@ const setup = () => {
 
   controls = controlsSetup(camera, renderer);
 
-  // Only setup post-processing on desktop devices
-  const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry/i.test(
-    navigator.userAgent,
-  );
-  if (!isMobile) {
+  // Disable post-processing on mobile devices to prevent overheating
+  if (!isMobileDevice()) {
     postProcessing = setupPostProcessing(renderer, scene, camera);
+  } else {
+    postProcessing = null;
   }
 
   audioSetup();
 };
 
 const init = async () => {
-  console.log("init starting...");
-
   // Show mobile preload modal first (if on mobile)
-  console.log("About to show mobile preload modal");
   await showMobilePreloadModal();
-  console.log("Mobile preload modal completed");
 
   try {
-    console.log("Starting setup...");
     setup();
-    console.log("Setup completed successfully");
   } catch (error) {
     console.error("Setup failed:", error);
     showError(`Setup Error: ${error.message}`);
@@ -218,15 +207,11 @@ const init = async () => {
   }
 
   // Setup mobile controls
-  console.log("Setting up mobile controls...");
   mobileControls = setupMobileControls(camera);
   isOnMobileDevice = mobileControls.isMobile;
 
   // Create touch data handler for mobile
   const handleTouchData = updateTouchData(camera);
-
-  console.log("Mobile device:", isOnMobileDevice);
-  console.log("Gyroscope supported:", mobileControls.isGyroscopeSupported);
 
   window.addEventListener("resize", resize);
   resize();
