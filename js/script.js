@@ -124,9 +124,25 @@ const showError = (message) => {
 };
 
 const setup = () => {
+  // Detect if device is likely older/mobile with limited capabilities
+  const isOldDevice = () => {
+    // Check if max MSAA samples is very low (older devices)
+    const canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+    if (gl) {
+      const maxSamples = gl.getParameter(gl.MAX_SAMPLES || 0x8d57) || 1;
+      return maxSamples <= 2;
+    }
+    return /iPhone|iPad|iPod|Android/.test(navigator.userAgent);
+  };
+
+  // Disable MSAA on older devices, use FXAA instead
+  const useAntialias = !isOldDevice();
+  console.log("Using hardware antialiasing:", useAntialias);
+
   renderer = new THREE.WebGLRenderer({
     canvas: $canvas,
-    antialias: true,
+    antialias: useAntialias,
   });
 
   shaderSetup();
@@ -172,7 +188,13 @@ const setup = () => {
 
   controls = controlsSetup(camera, renderer);
 
-  postProcessing = setupPostProcessing(renderer, scene, camera);
+  // Only setup post-processing on desktop devices
+  const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry/i.test(
+    navigator.userAgent,
+  );
+  if (!isMobile) {
+    postProcessing = setupPostProcessing(renderer, scene, camera);
+  }
 
   audioSetup();
 };
@@ -282,22 +304,33 @@ const draw = () => {
 
   controls.update();
 
-  // render via post
-  postProcessing.composer.render();
+  // Render via post-processing on desktop, direct render on mobile
+  if (postProcessing) {
+    postProcessing.composer.render();
+  } else {
+    renderer.render(scene, camera);
+  }
 
   requestAnimationFrame(draw);
 };
 
 const resize = () => {
-  renderer.setSize(
-    window.innerWidth * window.devicePixelRatio,
-    window.innerHeight * window.devicePixelRatio,
-    false,
-  );
+  const width = window.innerWidth * window.devicePixelRatio;
+  const height = window.innerHeight * window.devicePixelRatio;
+
+  // Ensure valid dimensions
+  if (width <= 0 || height <= 0) {
+    console.warn("Invalid window dimensions, skipping resize");
+    return;
+  }
+
+  renderer.setSize(width, height, false);
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
 
-  postProcessing.handleResize();
+  if (postProcessing) {
+    postProcessing.handleResize();
+  }
 };
 
 init().catch((error) => {

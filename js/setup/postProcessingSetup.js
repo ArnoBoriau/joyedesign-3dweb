@@ -24,18 +24,32 @@ const ColorGradingShader = {
 };
 
 export const setupPostProcessing = (renderer, scene, camera) => {
+  // Detect maximum supported MSAA samples for the device
+  const gl = renderer.getContext();
+  let maxSamples = gl.getParameter(gl.MAX_SAMPLES) || 1;
+
+  // Clamp to reasonable values and avoid issues on older devices
+  if (maxSamples > 4) {
+    maxSamples = 4; // Most mobile devices struggle with 8, cap at 4
+  }
+  if (maxSamples < 1) {
+    maxSamples = 1; // Fallback for devices with no MSAA support
+  }
+
+  console.log("Max MSAA samples supported:", maxSamples);
+
+  // Ensure dimensions are valid
+  const width = Math.max(1, window.innerWidth);
+  const height = Math.max(1, window.innerHeight);
+
   // Render target for anti-aliasing
-  const renderTarget = new THREE.WebGLRenderTarget(
-    window.innerWidth,
-    window.innerHeight,
-    {
-      minFilter: THREE.LinearFilter,
-      magFilter: THREE.LinearFilter,
-      format: THREE.RGBAFormat,
-      type: THREE.FloatType,
-      samples: 8,
-    }
-  );
+  const renderTarget = new THREE.WebGLRenderTarget(width, height, {
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    format: THREE.RGBAFormat,
+    type: THREE.FloatType,
+    samples: maxSamples,
+  });
 
   // Create effect composer
   const composer = new EffectComposer(renderer, renderTarget);
@@ -53,7 +67,7 @@ export const setupPostProcessing = (renderer, scene, camera) => {
     new THREE.Vector2(window.innerWidth, window.innerHeight),
     0.15,
     0.5,
-    0.95
+    0.95,
   );
   composer.addPass(bloomPass);
 
@@ -61,16 +75,20 @@ export const setupPostProcessing = (renderer, scene, camera) => {
   const fxaaPass = new ShaderPass(FXAAShader);
   fxaaPass.uniforms["resolution"].value.set(
     1 / (window.innerWidth * window.devicePixelRatio),
-    1 / (window.innerHeight * window.devicePixelRatio)
+    1 / (window.innerHeight * window.devicePixelRatio),
   );
   composer.addPass(fxaaPass);
 
   const handleResize = () => {
-    const width = window.innerWidth * window.devicePixelRatio;
-    const height = window.innerHeight * window.devicePixelRatio;
-    composer.setSize(width, height);
-    renderTarget.setSize(width, height);
-    fxaaPass.uniforms["resolution"].value.set(1 / width, 1 / height);
+    const width = Math.max(1, window.innerWidth * window.devicePixelRatio);
+    const height = Math.max(1, window.innerHeight * window.devicePixelRatio);
+
+    // Prevent invalid size operations
+    if (width > 0 && height > 0) {
+      composer.setSize(width, height);
+      renderTarget.setSize(width, height);
+      fxaaPass.uniforms["resolution"].value.set(1 / width, 1 / height);
+    }
   };
 
   return {
